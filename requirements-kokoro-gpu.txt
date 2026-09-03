@@ -1,0 +1,20 @@
+# Kokoro on CUDA. About 4x faster than CPU (0.12x vs 0.53x real time
+# on a GTX 1650). Install into a SEPARATE environment from the CPU one:
+# onnxruntime and onnxruntime-gpu provide the same module and conflict.
+#
+# The nvidia-* wheels supply the CUDA libraries. narrate.py puts their
+# directories on PATH at import time -- os.add_dll_directory() alone is
+# NOT enough on Windows and the provider silently falls back to CPU.
+#
+# Match the CUDA major version to your onnxruntime-gpu release:
+#   onnxruntime-gpu <= 1.28  ->  CUDA 12 wheels (below)
+#   onnxruntime-gpu >= 1.29  ->  CUDA 13 wheels (nvidia-*-cu13)
+kokoro-onnx>=0.4.7
+onnxruntime-gpu==1.22.0
+nvidia-cuda-runtime-cu12
+nvidia-cublas-cu12
+nvidia-cudnn-cu12
+nvidia-cufft-cu12
+nvidia-curand-cu12
+soundfile>=0.13
+numpy>=1.26

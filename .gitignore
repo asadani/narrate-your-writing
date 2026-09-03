@@ -1,0 +1,11 @@
+audio/
+models/
+*.mp3
+*.wav
+*.m4a
+!samples/*.wav
+.chunks/
+stamps.json
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,6 @@
+# Kokoro on CPU. Renders at roughly 0.5x real time on a modern laptop.
+# No GPU, no account, no downloads beyond the two model files.
+kokoro-onnx>=0.4.7
+onnxruntime>=1.20
+soundfile>=0.13
+numpy>=1.26

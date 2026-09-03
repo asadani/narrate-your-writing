@@ -1,0 +1,22 @@
+# A sample article. Blank lines separate paragraphs; each becomes one
+# spoken block with a pause after it. Lines starting with # are ignored.
+
+What is a protocol?
+
+A protocol is just an agreement about how two programs talk. Not a library, not a framework, not a product. An agreement.
+
+That sounds too simple to be useful, so here is why it matters. Once two programs agree on a format, neither one has to know anything else about the other. They can be written in different languages, by different people, in different decades. The agreement is the entire interface.
+
+A client is any program that wants something. A server is any program that has it and is listening. Those words describe roles in a conversation, not kinds of software, and the same process can be both at once.
+
+Underneath, most modern protocols are a request and a response carried over HTTP, often shaped as JSON. Send a method, some parameters, and an ID; get back a result or an error. The shape barely changes from one API to the next.
+
+The interesting part is what happens when the agreement is not enough.
+
+Consider authentication. A protocol can say every request must carry a token, but it cannot say where the token comes from, how long it lives, or what to do when it expires. So a second agreement gets layered on top, usually OAuth, and now you have two protocols in a trench coat.
+
+This is the normal condition of working software. Almost nothing is one clean protocol. It is a stack of agreements, each covering what the one below it left out.
+
+So when you read a specification, the useful question is not what does this allow. It is what does this leave to me?
+
+Is that a satisfying answer? Probably not. But it is the honest one, and it is the reason two systems that both claim to speak the same protocol can still fail to talk to each other.

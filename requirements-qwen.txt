@@ -1,0 +1,21 @@
+# Qwen3-TTS 0.6B voice cloning. Needs a CUDA GPU with ~3 GB free.
+#
+# IMPORTANT: installing qwen-tts resolves a CPU-ONLY torch wheel. After
+# installing, check and repair it:
+#
+#   python -c "import torch; print(torch.version.cuda)"     # None = broken
+#   pip install --force-reinstall torch==2.13.0 torchaudio \
+#       --index-url https://download.pytorch.org/whl/cu126
+#
+# Then confirm your GPU architecture is in the build:
+#   python -c "import torch; print(torch.cuda.get_arch_list())"
+#   Turing (GTX 16xx / RTX 20xx) is sm_75. CUDA 13 dropped older cards,
+#   so prefer the cu126 index if you are on pre-Ampere hardware.
+qwen-tts>=0.1.1
+soundfile>=0.13
+numpy>=1.26
+
+# optional, for check_reference.py
+librosa>=0.10        # resampling
+av>=13               # reading .m4a / .aac phone recordings
+psutil               # hardware line in bench.py

@@ -1,0 +1,49 @@
+READ THIS ALOUD to record your voice reference.
+
+Narration pace - as if teaching, not chatting. Read at your NORMAL speed:
+the clone copies your rhythm, so a carefully-slow reading gives you a
+carefully-slow narrator for every article you ever render.
+
+Leave a second of silence before you start and after you finish.
+Mistakes are fine. Do NOT re-record to make it perfect - three
+increasingly stiff takes cost you more than one fluffed word.
+
+Record on your PHONE, not a Bluetooth headset and not your laptop mic.
+Both of those cap the microphone at 8 kHz and the clone will sound muffled.
+Then run:  python check_reference.py your-recording.m4a --trim 6
+
+------------------------------------------------------------
+
+A protocol is just an agreement about how two programs talk.
+
+A client is any program that wants something; a server is any
+program that has it and is listening.
+
+Underneath, the messages are JSON-RPC two point zero. Send a
+method, some parameters, and an ID; get back a result or an error.
+
+For remote servers the specification adopts OAuth two point one,
+and the host runs a real authorisation flow in a browser.
+
+Locally it's simpler: the host launches the server as a subprocess,
+and they exchange newline-delimited JSON over standard input and
+output. No ports, no network, no TLS.
+
+The model does not run the tool. It cannot.
+
+It produces a block of text saying which tool it would like called,
+and with what arguments, and then it stops, and it waits.
+
+Your code executes the call. Your code sends the result back.
+
+Zero, one, two, three, four, five, six, seven, eight, nine.
+
+Is it going to rain tomorrow?
+
+------------------------------------------------------------
+
+Why these particular lines: they cover the prosody a narrator needs.
+Long subordinate clauses, a semicolon's mid-sentence lift, a colon
+setting up a list, two very short declaratives for the falling cadence,
+digits in sequence, and one real question at the end. Miss the question
+mark and every question you ever narrate will come out flat.
