@@ -20,8 +20,9 @@ Lower is better. 1.0 is real time. Measured on a GTX 1650 (4 GB) with
 
 Full write-ups, including everything that went wrong on the way:
 
-- **[Kokoro Narration Pipeline](docs/kokoro-narration.html)** — the simple path
-- **[Bring Your Own Voice](docs/bring-your-own-voice.html)** — cloning your own
+- **[Narrating your writing with Kokoro](https://tech.anujsadani.in/narrate-writing-kokoro/)** — the synthetic voice
+- **[Cloning your own voice with Qwen3-TTS](https://tech.anujsadani.in/clone-your-voice-qwen3-tts/)** — bring your own
+- **[Reviving a six-year-old GPU for small models](https://tech.anujsadani.in/revive-old-gpu-small-models/)** — the hardware troubleshooting
 
 ---
 
@@ -173,7 +174,6 @@ narrate.py             both engines, one pipeline
 check_reference.py     verify a voice recording before using it
 bench.py               measure RTF on your own hardware
 samples/               a sample article, and the passage to read aloud
-docs/                  the two long-form guides
 ```
 
 ## Licence
