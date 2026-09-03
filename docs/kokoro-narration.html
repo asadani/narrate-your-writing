@@ -84,6 +84,7 @@ tbody td:first-child{font-family:"IBM Plex Sans",sans-serif;color:var(--ink)}
 tbody tr:last-child td{border-bottom:0}
 tfoot td{background:var(--panel);font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--ink)}
 .hot{color:var(--bad);font-weight:600}
+.win{color:var(--good);font-weight:600}
 .dim{color:var(--muted)}
 
 .note{border:1px solid var(--rule);border-left:3px solid var(--nc,var(--accent));background:var(--surface);border-radius:var(--r);padding:15px 18px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
@@ -105,29 +106,30 @@ a:focus-visible,:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 <header class="mast">
   <p class="eyebrow">Adding narration to writing &middot; part one of two</p>
   <h1>Kokoro Narration Pipeline</h1>
-  <p class="lede">Turning 18 written chapters into 45 minutes of listenable audio, on a laptop CPU, with an 82-million-parameter model and no GPU at all. Every number here was measured on the run that produced the finished track.</p>
+  <p class="lede">Turning 18 written chapters into 45 minutes of listenable audio with an 82-million-parameter model &mdash; in 24 minutes on a laptop CPU, or 6 on a budget GPU. Every number here was measured, not estimated.</p>
   <p class="pair">Part two covers the harder version of this problem &mdash; narrating in <em>your own</em> voice &mdash; in <strong>Bring Your Own Voice</strong>.</p>
 </header>
 
 <section>
   <div class="facts">
     <div class="fact"><span class="v">82M</span><span class="k">parameters, ONNX</span></div>
-    <div class="fact"><span class="v">1.07&times;</span><span class="k">real time, on CPU</span></div>
-    <div class="fact"><span class="v">45 min</span><span class="k">of audio per 45 min of compute</span></div>
+    <div class="fact"><span class="v">0.53&times;</span><span class="k">real time on CPU &mdash; no GPU needed</span></div>
+    <div class="fact"><span class="v">0.12&times;</span><span class="k">real time on CUDA, if you want it</span></div>
     <div class="fact"><span class="v">Apache&nbsp;2.0</span><span class="k">weights and code</span></div>
   </div>
 </section>
 
 <section>
   <h2>The hardware this was measured on</h2>
-  <p>Note what isn't in this list: a GPU. Kokoro runs on the CPU, so the only thing that really matters below is the memory.</p>
+  <p>Deliberately modest. Kokoro needs none of it &mdash; it runs on the CPU alone, and the GPU below appears only for the optional comparison further down.</p>
   <div class="rig">
     <dl>
-      <div class="rigrow"><dt>CPU</dt><dd>4-core laptop processor &mdash; no GPU used at any point</dd></div>
+      <div class="rigrow"><dt>CPU</dt><dd>4-core laptop processor &mdash; enough on its own</dd></div>
+      <div class="rigrow"><dt>GPU</dt><dd>GTX 1650, 4 GB &mdash; optional, 4.3&times; faster when used</dd></div>
       <div class="rigrow"><dt>System RAM</dt><dd><strong>8.5 GB total</strong>, typically 2&ndash;3 GB free &mdash; the binding constraint</dd></div>
       <div class="rigrow"><dt>Disk</dt><dd>354 MB of model files, 19 MB of finished MP3</dd></div>
       <div class="rigrow"><dt>Stack</dt><dd>Windows 11, Python 3.12, onnxruntime (CPU), soundfile</dd></div>
-      <div class="rigrow"><dt>Result</dt><dd>18 chapters, 45.5 minutes of narration, ~45 minutes of compute</dd></div>
+      <div class="rigrow"><dt>Result</dt><dd>18 chapters, 45.5 minutes of narration &mdash; 24 min on CPU, 6 min on CUDA</dd></div>
     </dl>
   </div>
 </section>
@@ -264,10 +266,38 @@ if not force and mp3.exists() and stamps.get(cid, {}).get("k") == key:
 </section>
 
 <section>
-  <h2>Two dead ends, so you can skip them</h2>
+  <h2>CPU or GPU?</h2>
+  <p>Kokoro does not need a GPU, which is most of its appeal. But it will use one, and the difference is larger than the &ldquo;you don't need it&rdquo; framing suggests. Same machine, same model file, same text &mdash; only the ONNX execution provider changes:</p>
+  <div class="tbox">
+    <table>
+      <thead><tr><th>Provider</th><th>Session load</th><th>Audio</th><th>Compute</th><th>RTF</th></tr></thead>
+      <tbody>
+        <tr><td>CPU</td><td>1.1s</td><td>118.5s</td><td>63.4s</td><td>0.53&times;</td></tr>
+        <tr><td><strong>CUDA</strong></td><td>5.0s</td><td>118.5s</td><td class="win">14.7s</td><td class="win">0.12&times;</td></tr>
+      </tbody>
+      <tfoot><tr><td>45 minutes of writing</td><td colspan="3">CPU 24 min &nbsp;&middot;&nbsp; CUDA 6 min</td><td>4.3&times;</td></tr></tfoot>
+    </table>
+  </div>
+  <p>Six minutes to narrate forty-five minutes of writing. At that point a re-render stops being something you schedule and becomes something you do because you changed a sentence.</p>
+  <p>Note the load column, though: CUDA costs five seconds of session setup against one. For a single short article the CPU finishes first. The GPU only wins once you have more than a couple of minutes of text.</p>
+  <div class="note" style="--nc:var(--bad)">
+    <h3>The reason &ldquo;CUDA doesn't work&rdquo; is almost always PATH</h3>
+    <p>The pip <code>nvidia-*</code> wheels put their DLLs in <code>site-packages/nvidia/*/bin</code>. onnxruntime loads its provider DLL by a route that searches the real <code>PATH</code>, so registering those directories with <code>os.add_dll_directory()</code> is <em>not enough</em> &mdash; the provider fails to load and silently falls back to CPU, with no error unless you look for one. Put them on <code>PATH</code> before importing onnxruntime:</p>
+  </div>
+<pre><code>root = Path(importlib.util.find_spec("nvidia").origin).parent
+for sub in sorted(root.rglob("bin")):
+    if sub.is_dir():
+        <b>os.environ["PATH"] = str(sub) + os.pathsep + os.environ["PATH"]</b>
+        os.add_dll_directory(str(sub))     <span class="c"># helps, insufficient alone</span></code></pre>
+  <p>And match the CUDA major version to your onnxruntime release &mdash; 1.29 wants CUDA 13 (<code>cublasLt64_13.dll</code>), 1.22 wants CUDA 12. Installing the wrong <code>nvidia-*-cu1x</code> wheels produces a missing-DLL error naming a file you will not otherwise recognise.</p>
+</section>
+
+<section>
+  <h2>One dead end, so you can skip it</h2>
   <div class="note" style="--nc:var(--warn)">
     <h3>DirectML looks like free GPU acceleration. It isn't.</h3>
-    <p><code>onnxruntime-directml</code> advertises the provider, claims the node, and then dies inside Kokoro's F0 encoder on <code>ConvTranspose</code> with <code>80070057</code>. Because it has claimed the node, there is no CPU fallback &mdash; nothing renders at all. And it installs over <code>onnxruntime</code>, so you have to uninstall one to try the other. Kokoro is fast enough on CPU that this is not worth chasing.</p>
+    <p><code>onnxruntime-directml</code> advertises the provider, claims the node, and then dies inside Kokoro's F0 encoder on <code>ConvTranspose</code> with <code>80070057</code>. Because it has claimed the node, there is no CPU fallback &mdash; nothing renders at all. And it installs over <code>onnxruntime</code>, so you have to uninstall one to try the other.</p>
+    <p>If you want GPU acceleration, use CUDA, which works. DirectML is the tempting option because it needs no CUDA toolkit and runs on any DirectX 12 GPU; it is also the one that wasted a day here.</p>
   </div>
   <div class="note" style="--nc:var(--warn)">
     <h3>Make an explicit device request an assertion, not a preference</h3>
