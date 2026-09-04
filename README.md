@@ -174,7 +174,9 @@ narrate.py             both engines, one pipeline
 check_reference.py     verify a voice recording before using it
 bench.py               measure RTF on your own hardware
 book_extract.py        pull narratable prose out of a book-forge book
-book_player.py         add a listen-along player to a book's HTML
+book_player.py         add a listen-along player to a book (inlined assets)
+article_extract.py     pull narratable prose out of a blog article
+article_player.py      add a listen-along player to an article (linked assets)
 samples/               a sample article, and the passage to read aloud
 ```
 
