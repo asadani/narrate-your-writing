@@ -13,7 +13,8 @@ kokoro-onnx>=0.4.7
 onnxruntime-gpu==1.22.0
 nvidia-cuda-runtime-cu12
 nvidia-cublas-cu12
-nvidia-cudnn-cu12
+# Verified with ORT 1.22 on GTX 1650. cuDNN 9.27 failed its first Conv at runtime.
+nvidia-cudnn-cu12==9.10.2.21
 nvidia-cufft-cu12
 nvidia-curand-cu12
 soundfile>=0.13

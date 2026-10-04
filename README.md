@@ -58,6 +58,9 @@ Roughly 4× quicker. Use a **separate environment** — `onnxruntime` and
 
 ```bash
 pip install -r requirements-kokoro-gpu.txt
+# kokoro-onnx also pulls the CPU distribution; restore a GPU-only module:
+pip uninstall -y onnxruntime
+pip install --force-reinstall --no-deps onnxruntime-gpu==1.22.0
 python narrate.py samples/ --engine kokoro --device cuda
 ```
 
@@ -66,6 +69,12 @@ onnxruntime loads its provider DLL by a route that only searches `PATH`, so
 `os.add_dll_directory()` is not enough. `narrate.py` fixes this in
 `register_cuda_dlls()`. Passing `--device cuda` explicitly makes a fallback
 an error rather than a slow surprise.
+
+This applies to errors during synthesis as well as initialization: explicit CUDA
+disables ONNX Runtime's automatic CPU retry. The GPU requirements pin cuDNN
+9.10.2.21, verified with ONNX Runtime 1.22.0 on the GTX 1650. A fresh installation
+with cuDNN 9.27.0.42 initialized CUDA but failed its first convolution; a startup
+provider message alone was not sufficient evidence of GPU rendering.
 
 ---
 

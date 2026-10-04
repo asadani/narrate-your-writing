@@ -189,6 +189,10 @@ class KokoroEngine:
         opts.log_severity_level = 3
         session = ort.InferenceSession(str(model), sess_options=opts,
                                        providers=order)
+        # ORT can retry an inference-time CUDA error on CPU even after CUDA
+        # initialized successfully. An explicit device request must fail instead.
+        if device == "cuda":
+            session.disable_fallback()
         active = session.get_providers()[0]
         if device == "cuda" and "CUDA" not in active:
             sys.exit("Asked for CUDA but got %s. Install onnxruntime-gpu plus "
