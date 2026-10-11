@@ -57,7 +57,38 @@ SPOKEN_ACRONYMS = [
     (r"\bSDK\b", "ess dee kay"),
     (r"\bLLMs\b", "ell ell ems"),
     (r"\bLLM\b", "ell ell em"),
+    # espeak spells an all-caps token letter by letter; RAG is said as a word.
+    (r"\bRAG\b", "rag"),
 ]
+
+_ONES = ("zero one two three four five six seven eight nine ten eleven twelve "
+         "thirteen fourteen fifteen sixteen seventeen eighteen nineteen").split()
+_TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()
+
+
+def _words(n):
+    """Whole number to English words, up to the billions."""
+    if n < 20:
+        return _ONES[n]
+    if n < 100:
+        return _TENS[n // 10] + ("-" + _ONES[n % 10] if n % 10 else "")
+    if n < 1000:
+        rest = " " + _words(n % 100) if n % 100 else ""
+        return _ONES[n // 100] + " hundred" + rest
+    for size, name in ((10 ** 9, "billion"), (10 ** 6, "million"), (1000, "thousand")):
+        if n >= size:
+            rest = " " + _words(n % size) if n % size else ""
+            return _words(n // size) + " " + name + rest
+
+
+# espeak reads "1,000" and "1000" digit by digit ("one zero zero zero"). Years
+# (1900-2099) it already says correctly, so those are left alone.
+SPOKEN_NUMBER = re.compile(
+    r"(?<![\w.])(?:\d{1,3}(?:,\d{3})+|(?!(?:19|20)\d\d\b)\d{4,})(?!\w|\.\d)")
+
+
+def _say_number(m):
+    return _words(int(m.group(0).replace(",", "")))
 
 # Punctuation and whitespace. Engine-neutral, always applied.
 SPOKEN_TYPOGRAPHY = [
@@ -72,6 +103,7 @@ def spoken(text, acronyms=True):
     if acronyms:
         for pattern, replacement in SPOKEN_ACRONYMS:
             text = re.sub(pattern, replacement, text)
+        text = SPOKEN_NUMBER.sub(_say_number, text)
     for pattern, replacement in SPOKEN_TYPOGRAPHY:
         text = re.sub(pattern, replacement, text)
     return text.strip()
