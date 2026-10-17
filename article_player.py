@@ -280,7 +280,7 @@ def strip_block(text):
 
 def insert(text, block):
     """After the hero and any banner, before the first content section."""
-    m = re.search(r'<div class="section"', text)
+    m = re.search(r'<(?:div|section) class="section"', text)
     if m:
         return text[:m.start()] + block + "\n\n" + text[m.start():]
     if "</body>" in text:
@@ -335,7 +335,7 @@ def main():
     (site / "assets" / "player.js").write_text(JS, encoding="utf-8")
 
     text = strip_block(page.read_text(encoding="utf-8"))
-    placed = "inline" if '<div class="section"' in text else "end"
+    placed = "inline" if re.search(r'<(?:div|section) class="section"', text) else "end"
     page.write_text(insert(text, build_block(tracks, total)), encoding="utf-8")
 
     print("%s: %d parts, %s, placed %s" % (root.name, len(tracks),
