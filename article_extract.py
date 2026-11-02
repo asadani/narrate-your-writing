@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Pull narratable prose out of a blog article page.
 
-    python article_extract.py ../asadani.github.io/agentic-ocr-for-real
-    python article_extract.py ../asadani.github.io/agentic-ocr-for-real --write
+    python article_extract.py ../../sites/asadani.github.io/agentic-ocr-for-real
+    python article_extract.py ../../sites/asadani.github.io/agentic-ocr-for-real --write
 
 Prints a plan by default; --write emits one .txt per section into
 <article>/narration/.

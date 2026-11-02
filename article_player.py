@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Add a listen-along player to a blog article.
 
-    python article_player.py ../asadani.github.io/agentic-ocr-for-real
-    python article_player.py ../asadani.github.io/agentic-ocr-for-real --remove
+    python article_player.py ../../sites/asadani.github.io/agentic-ocr-for-real
+    python article_player.py ../../sites/asadani.github.io/agentic-ocr-for-real --remove
 
 Unlike the book player this uses LINKED assets, not inlined ones. The books
 live in ten separate repos, build a PDF from the same HTML and must work from
